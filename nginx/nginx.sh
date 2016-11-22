@@ -10,7 +10,7 @@
 HOST="localhost"
 PORT="80"
 
-function check {
+function check() {
 	/sbin/pidof nginx | wc -l 
 }
 
