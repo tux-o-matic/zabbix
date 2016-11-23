@@ -722,7 +722,7 @@
         </graph>
 
         <graph>
-            <name>Redis Last_save_time</name>
+            <name>Redis Last save time</name>
             <width>900</width>
             <height>200</height>
             <yaxismin>0.0000</yaxismin>
