@@ -2,8 +2,8 @@
 ##################################################
 # AUTHOR: Neo <netkiller@msn.com>
 # WEBSITE: http://www.netkiller.cn
-# Description£ºzabbix Í¨¹ı status Ä£¿é¼à¿Ø nginx
-# Note£ºZabbix 3.2
+# Descriptionï¼šzabbix é€šè¿‡ status æ¨¡å—ç›‘æ§ nginx
+# Noteï¼šZabbix 3.2
 # DateTime: 2016-11-22
 ##################################################
 
