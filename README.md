@@ -1,2 +1,2 @@
-# zabbix
+# Netkiller zabbix templates
 Zabbix Plugin

@@ -6,6 +6,8 @@
 	
 	# wget https://raw.githubusercontent.com/oscm/zabbix/master/elasticsearch/userparameter_elasticsearch.conf -P /etc/zabbix/zabbix_agentd.d/
 	
+	# wget https://raw.githubusercontent.com/oscm/zabbix/master/elasticsearch/elasticsearch -P /srv/zabbix/libexec
+	
 	# chmod +x /srv/zabbix/libexec/elasticsearch
 	
 	# /srv/zabbix/libexec/elasticsearch indices _all.total.flush.total_time_in_millis
