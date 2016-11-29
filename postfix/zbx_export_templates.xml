@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>3.2</version>
-    <date>2016-11-29T06:33:43Z</date>
+    <date>2016-11-29T07:06:18Z</date>
     <groups>
         <group>
             <name>Netkiller</name>
@@ -462,12 +462,12 @@
             </items>
             <discovery_rules>
                 <discovery_rule>
-                    <name>Postfix discovery</name>
+                    <name>Postfix discovery smtp code</name>
                     <type>0</type>
                     <snmp_community/>
                     <snmp_oid/>
                     <key>postfix[discovery]</key>
-                    <delay>3600</delay>
+                    <delay>30</delay>
                     <status>0</status>
                     <allowed_hosts/>
                     <snmpv3_contextname/>

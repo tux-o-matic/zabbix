@@ -10,4 +10,6 @@ Install agent
 	chmod +x /srv/zabbix/libexec/postfix
 	
 	wget https://raw.githubusercontent.com/oscm/zabbix/master/postfix/userparameter_postfix.conf -P /etc/zabbix/zabbix_agentd.d/
-	zabbix_get -s 173.24.22.53 -k 'agent.ping'
+	systemctl restart zabbix-agent
+	
+	zabbix_get -s 13.24.22.53 -k 'agent.ping'
