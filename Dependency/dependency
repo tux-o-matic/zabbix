@@ -27,9 +27,9 @@ function icmp(){
 function port(){
 	CONNECTED=$(echo -e "\r\n"|nc -v -w ${TIMEOUT} $1 $2 2>&1 | grep Connected)
 	if [ -z "${CONNECTED}" ]; then
-		echo 1
-	else
 		echo 0
+	else
+		echo 1
 	fi
 	exit
 }
