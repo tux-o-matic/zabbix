@@ -32,9 +32,47 @@
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+				<version>2.5.2</version>
+				<!-- <inherited>false</inherited> -->
+				<executions>
+					<execution>
+						<id>install:com.oracle:ojdbc6:11g</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>install-file</goal>
+						</goals>
+						<configuration>
+							<file>${project.basedir}/lib/ojdbc6.jar</file>
+							<groupId>com.oracle</groupId>
+							<artifactId>ojdbc6</artifactId>
+							<version>11.2.0.3</version>
+							<packaging>jar</packaging>
+							<createChecksum>true</createChecksum>
+							<generatePom>true</generatePom>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source />
+					<target />
+				</configuration>
+			</plugin>
 
-			<!-- <plugin> <artifactId>maven-compiler-plugin</artifactId> <version>3.3</version> <configuration> <source /> <target /> </configuration> </plugin> -->
-
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.12</version>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -65,53 +103,8 @@
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<version>1.4</version>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-						<configuration>
-							<transformers>
-								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>cn.netkiller.Oracle</mainClass>
-								</transformer>
-							</transformers>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-install-plugin</artifactId>
-				<version>2.5.2</version>
-				<inherited>false</inherited>
-				<executions>
-					<execution>
-						<id>install:com.oracle:ojdbc6:11g</id>
-						<phase>validate</phase>
-						<goals>
-							<goal>install-file</goal>
-						</goals>
-						<configuration>
-							<file>${project.basedir}/lib/ojdbc6.jar</file>
-							<groupId>com.oracle</groupId>
-							<artifactId>ojdbc6</artifactId>
-							<version>11.2.0.3</version>
-							<packaging>jar</packaging>
-							<createChecksum>true</createChecksum>
-							<generatePom>true</generatePom>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
+			</plugin>			
+			
 		</plugins>
 	</build>
 

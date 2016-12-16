@@ -17,66 +17,73 @@ import java.util.logging.*;
  * Hello world!
  *
  */
-
-class LogFormatter extends Formatter {
-	@Override
-	public String format(LogRecord record) {
-		return String.format("%s %s\t%s\r\n", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()),
-				record.getLevel(), record.getMessage());
-	}
-}
-
 public class Oracle {
 
-	String url = null; // 数据库链接地址
-	String username = null;// 用户名,系统默认的账户名
-	String password = null;// 你安装时选设置的密码
+	private String url = null; // 数据库链接地址
+	private String username = null;// 用户名,系统默认的账户名
+	private String password = null;// 你安装时选设置的密码
 
-	Logger log = Logger.getLogger(this.getClass().getName());
+	private Logger logger = Logger.getLogger(this.getClass().getName());
 
 	public Oracle() {
-
-		FileHandler fileHandler = null;
 		try {
-			fileHandler = new FileHandler("monitor.%g.log");
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			this.logger.setLevel(Level.INFO);
+
+			Formatter formatter = new Formatter() {
+
+				@Override
+				public String format(LogRecord logRecord) {
+					StringBuilder b = new StringBuilder();
+					b.append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()));
+					b.append(" ");
+					b.append(logRecord.getSourceClassName());
+					b.append(" ");
+					b.append(logRecord.getSourceMethodName());
+					b.append(" ");
+					b.append(logRecord.getLevel());
+					b.append(" ");
+					b.append(logRecord.getMessage());
+					b.append(System.getProperty("line.separator"));
+					return b.toString();
+				}
+
+			};
+
+			FileHandler fileHandler = new FileHandler("monitor.%g.log");
+
+			logger.setUseParentHandlers(false);
+
+			fileHandler.setLevel(Level.INFO);
+			logger.addHandler(fileHandler);
+
+			fileHandler.setFormatter(formatter);
+			logger.setLevel(Level.INFO);
+
+			LogManager lm = LogManager.getLogManager();
+			lm.addLogger(logger);
+
+		} catch (Throwable e) {
 			e.printStackTrace();
 		}
 
-		ConsoleHandler consoleHandler = new ConsoleHandler();
-		consoleHandler.setLevel(Level.OFF);
-		log.addHandler(consoleHandler);
-
-		fileHandler.setLevel(Level.INFO);
-		this.log.addHandler(fileHandler);
-
-		fileHandler.setFormatter(new LogFormatter());
-		this.log.setLevel(Level.INFO);
-
 	}
 
-	public void openConfig() {
-		String connectionfig = "jdbc.properties";
+	public void openConfig(String config) {
 		Properties properties = new Properties();
 		try {
-			properties.load(new FileInputStream(connectionfig));
+			properties.load(new FileInputStream(config));
 			this.url = properties.getProperty("jdbc.url");
 			this.username = properties.getProperty("jdbc.username");
 			this.password = properties.getProperty("jdbc.password");
 		} catch (FileNotFoundException e) {
-			this.log.info(
-					e.getMessage() + " Working Directory = " + System.getProperty("user.dir") + "/" + connectionfig);
+			logger.info(e.getMessage() + " Working Directory = " + config);
 			System.exit(1);
 		} catch (IOException e) {
-			this.log.info(e.getMessage());
+			logger.info(e.getMessage());
 			System.exit(1);
 		}
 		if (this.url == null || this.username == null || this.password == null) {
-			this.log.info("This Propertie file is invalid");
+			logger.info("This Propertie file is invalid");
 			System.exit(1);
 			// throw new Exception("");
 		}
@@ -84,27 +91,31 @@ public class Oracle {
 	}
 
 	public void testConnection() {
+		String sql = "select current_date from dual";
+		this.query(sql);
+	}
+
+	public void query(String sql) {
 		Connection connection = null;// 创建一个数据库连接
 		ResultSet result = null;// 创建一个结果集对象
 		Statement statement = null;
 		try {
 			Class.forName("oracle.jdbc.driver.OracleDriver");// 加载Oracle驱动程序
 			connection = DriverManager.getConnection(this.url, this.username, this.password);
-			String sql = "select current_date from dual";
 			statement = connection.createStatement();
 			result = statement.executeQuery(sql);
 			if (result.next()) {
-				this.log.info(String.format("%s %s", result.getDate(1), result.getTime(1)));
+				logger.info(String.format("%s %s", result.getDate(1), result.getTime(1)));
 				System.out.println(1);
 			} else {
 				System.out.println(0);
 			}
 
 		} catch (ClassNotFoundException e) {
-			log.info(e.getMessage());
+			logger.info(e.getMessage());
 			System.exit(1);
 		} catch (SQLException e) {
-			log.info(e.getMessage());
+			logger.info(e.getMessage());
 			System.exit(1);
 		} finally {
 			try {
@@ -118,21 +129,29 @@ public class Oracle {
 					connection.close();
 				}
 			} catch (Exception e) {
-				this.log.info(e.getMessage());
+				logger.info(e.getMessage());
 				System.exit(1);
 			}
 		}
 	}
 
+	public void help(String prog) {
+		System.out.println(String.format("%s -Dconfig=/path/to/jdbc.properties", prog));
+	}
+
 	public static void main(String[] args) {
 		try {
 			Oracle oracle = new Oracle();
-			oracle.openConfig();
-			if(args[1] == "--conn"){
+			if (System.getProperty("config") == null) {
+				oracle.help(oracle.getClass().getName());
+				System.exit(1);
+			}
+			oracle.openConfig(System.getProperty("config"));
+			if (args[0].equals("--conn")) {
 				oracle.testConnection();
 			}
 		} catch (Exception e) {
-			System.out.println(0);
+			System.out.println(e.getMessage());
 		}
 
 	}
