@@ -9,7 +9,11 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.*;
 
@@ -24,6 +28,8 @@ public class Oracle {
 	private String password = null;// 你安装时选设置的密码
 
 	private Logger logger = Logger.getLogger(this.getClass().getName());
+
+	private Connection connection = null;// 创建一个数据库连接
 
 	public Oracle() {
 		try {
@@ -46,10 +52,9 @@ public class Oracle {
 					b.append(System.getProperty("line.separator"));
 					return b.toString();
 				}
-
 			};
 
-			FileHandler fileHandler = new FileHandler("monitor.%g.log");
+			FileHandler fileHandler = new FileHandler("monitor.%g.log", true);
 
 			logger.setUseParentHandlers(false);
 
@@ -62,6 +67,11 @@ public class Oracle {
 			LogManager lm = LogManager.getLogManager();
 			lm.addLogger(logger);
 
+			Class.forName("oracle.jdbc.OracleDriver");// 加载Oracle驱动程序
+
+		} catch (ClassNotFoundException e) {
+			logger.info(e.getMessage());
+			System.exit(1);
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
@@ -90,49 +100,93 @@ public class Oracle {
 
 	}
 
-	public void testConnection() {
-		String sql = "select current_date from dual";
-		this.query(sql);
-	}
-
-	public void query(String sql) {
-		Connection connection = null;// 创建一个数据库连接
-		ResultSet result = null;// 创建一个结果集对象
-		Statement statement = null;
+	public boolean connect() {
 		try {
-			Class.forName("oracle.jdbc.driver.OracleDriver");// 加载Oracle驱动程序
-			connection = DriverManager.getConnection(this.url, this.username, this.password);
-			statement = connection.createStatement();
-			result = statement.executeQuery(sql);
-			if (result.next()) {
-				logger.info(String.format("%s %s", result.getDate(1), result.getTime(1)));
-				System.out.println(1);
-			} else {
-				System.out.println(0);
-			}
-
-		} catch (ClassNotFoundException e) {
-			logger.info(e.getMessage());
-			System.exit(1);
+			this.connection = DriverManager.getConnection(this.url, this.username, this.password);
 		} catch (SQLException e) {
 			logger.info(e.getMessage());
-			System.exit(1);
-		} finally {
-			try {
-				if (result != null) {
-					result.close();
-				}
-				if (statement != null) {
-					statement.close();
-				}
-				if (connection != null) {
-					connection.close();
-				}
-			} catch (Exception e) {
-				logger.info(e.getMessage());
-				System.exit(1);
-			}
+			return false;
 		}
+		return true;
+	}
+
+	public boolean close() {
+		try {
+			if (connection != null) {
+				connection.close();
+			}
+		} catch (Exception e) {
+			logger.info(e.getMessage());
+			return false;
+		}
+		return true;
+	}
+
+	public int test() {
+		String sql = "select current_date from dual";
+		ResultSet result = this.query(sql);
+		int status = 0;
+		try {
+			if (result.next()) {
+				logger.info(String.format("%s %s", result.getDate(1), result.getTime(1)));
+				status = 1;
+			}
+			result.close();
+		} catch (SQLException e) {
+			logger.info(e.getMessage());
+		}
+		return status;
+	}
+
+	public ResultSet query(String sql) {
+		if (!this.connect()) {
+			return null;
+		}
+		ResultSet result = null;
+		try {
+			Statement statement = connection.createStatement();
+			result = statement.executeQuery(sql);
+		} catch (SQLException e) {
+			logger.info(e.getMessage());
+			return null;
+		}
+		return result;
+	}
+
+	public List<String> user() {
+		List<String> users = new ArrayList<String>();
+		String sql = "select username from all_users";
+		try {
+			ResultSet result = this.query(sql);
+			while (result.next()) {
+				users.add(result.getString("username"));
+				// System.out.println(result.getString(1));
+			}
+			result.close();
+		} catch (SQLException e) {
+			logger.info(e.getMessage());
+		}
+		// System.out.println(users.toString());
+		return users;
+	}
+
+	public Map<String, Integer> getSession(String username) {
+		String sql = "select username,count(username) as count from v$session where username is not null group by username";
+		if (username != null) {
+			sql = "select username,count(username) as count from v$session where username = '" + username
+					+ "' group by username";
+		}
+		Map<String, Integer> session = new HashMap<String, Integer>();
+		try {
+			ResultSet result = this.query(sql);
+			while (result.next()) {
+				session.put(result.getString("username"), result.getInt("count"));
+			}
+			result.close();
+		} catch (SQLException e) {
+			logger.info(e.getMessage());
+		}
+		return session;
 	}
 
 	public void help(String prog) {
@@ -142,14 +196,38 @@ public class Oracle {
 	public static void main(String[] args) {
 		try {
 			Oracle oracle = new Oracle();
+
 			if (System.getProperty("config") == null) {
 				oracle.help(oracle.getClass().getName());
-				System.exit(1);
+				oracle.openConfig("jdbc.properties");
+			} else {
+				oracle.openConfig(System.getProperty("config"));
 			}
-			oracle.openConfig(System.getProperty("config"));
-			if (args[0].equals("--conn")) {
-				oracle.testConnection();
+
+
+
+			if (args[0].equals("--query")) {
+				System.out.println(oracle.test());
 			}
+			if (args[0].equals("--user")) {
+				for (String username : oracle.user()) {
+					System.out.println(username);
+				}	
+			}
+			if (args[0].equals("--session")) {
+				Map<String, Integer> session = null;
+				if (args.length == 2) {
+					session = oracle.getSession(args[1]);
+				} else {
+					session = oracle.getSession(null);
+				}
+
+				for (Map.Entry<String, Integer> entry : session.entrySet()) {
+					System.out.println(String.format("%s:%d", entry.getKey(), entry.getValue()));
+				}
+
+			}
+			oracle.close();
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
