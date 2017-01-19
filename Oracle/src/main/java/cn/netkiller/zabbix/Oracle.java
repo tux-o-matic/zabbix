@@ -1,6 +1,8 @@
 package cn.netkiller.zabbix;
 
 import java.sql.DriverManager;
+import java.net.ProxySelector;
+
 import java.sql.ResultSet;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -32,6 +34,7 @@ public class Oracle {
 	private Connection connection = null;// 创建一个数据库连接
 
 	public Oracle() {
+		ProxySelector.setDefault(null);
 		try {
 			this.logger.setLevel(Level.INFO);
 
@@ -204,15 +207,13 @@ public class Oracle {
 				oracle.openConfig(System.getProperty("config"));
 			}
 
-
-
 			if (args[0].equals("--query")) {
 				System.out.println(oracle.test());
 			}
 			if (args[0].equals("--user")) {
 				for (String username : oracle.user()) {
 					System.out.println(username);
-				}	
+				}
 			}
 			if (args[0].equals("--session")) {
 				Map<String, Integer> session = null;
