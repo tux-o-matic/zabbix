@@ -651,7 +651,7 @@
                     <value>localhost</value>
                 </macro>
                 <macro>
-                    <macro>{$POST}</macro>
+                    <macro>{$PORT}</macro>
                     <value>6379</value>
                 </macro>
             </macros>
