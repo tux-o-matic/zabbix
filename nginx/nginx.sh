@@ -12,7 +12,12 @@ PORT="80"
 stub_status=stub_status
 
 function check() {
-	/sbin/pidof nginx | wc -l 
+	test -f /sbin/pidof && 
+	if [ -f /sbin/pidof ]; then
+	   /sbin/pidof nginx | wc -w
+	else
+	   ps ax | grep "nginx:" | grep -v grep | wc -l
+	fi
 }
 
 function active() {
