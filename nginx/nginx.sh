@@ -12,7 +12,6 @@ PORT="80"
 stub_status=stub_status
 
 function check() {
-	test -f /sbin/pidof && 
 	if [ -f /sbin/pidof ]; then
 	   /sbin/pidof nginx | wc -w
 	else
