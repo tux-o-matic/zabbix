@@ -17,10 +17,10 @@
 #  - upated index to handle space or comma betwee values
 # 
 ##################################################
-DB_HOST=localhost
-DB_PORT=27017
-DB_USERNAME=admin
-DB_PASSWORD=admin_password
+DB_HOST=
+DB_PORT=
+DB_USERNAME=
+DB_PASSWORD=
 MONGO=`which mongo`
 JQ=`which jq`
 EXIT_ERROR=1
@@ -32,17 +32,17 @@ if [ ! -x "$MONGO" ] ; then
 elif [ ! -x "$JQ" ] ; then
   echo "jq not found"
   exit $EXIT_ERROR
-elif [ -z "$DB_HOST" -o -z "$DB_PORT" -o -z "$DB_USERNAME" -o -z "$DB_PASSWORD" ] ; then
-  echo "config error"
-  exit $EXIT_ERROR
 elif [ $# -eq 0 ] ; then
   echo "No values pass"
   exit $EXIT_ERROR
 fi
 index=.$(echo $@ | sed 's/[ ,]/./g')
-MONGO_CMD="$MONGO --host $DB_HOST --port $DB_PORT --username $DB_USERNAME --password $DB_PASSWORD --authenticationDatabase admin --quiet"
+MONGO_CMD="$MONGO --host ${DB_HOST:-localhost} --port ${DB_PORT:-27017} --authenticationDatabase admin --quiet"
+[[ "$DB_USERNAME" ]] && MONGO_CMD="${MONGO_CMD} --username ${DB_USERNAME}"
+[[ "$DB_PASSWORD" ]] && MONGO_CMD="${MONGO_CMD} --password ${DB_PASSWORD}"
+
 output=$(
-	$MONGO_CMD --eval "db.runCommand( { serverStatus: 1} )" |\
+	$MONGO_CMD <<< "db.runCommand( { serverStatus: 1} )" |\
 	sed -e 's/NumberLong(\(.*\))/\1/ 
 	  s/ISODate(\(.*\))/\1/
 	  s/ObjectId(\(.*\))/\1/
