@@ -8,7 +8,7 @@ nginx
 		listen       80;
 		server_name  localhost;
 
-		location /status {
+		location /stub_status {
 			stub_status on;
 			access_log off;
 			allow 127.0.0.1;
