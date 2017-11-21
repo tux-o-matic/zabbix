@@ -14,7 +14,7 @@
         <template>
             <template>Template App Nginx</template>
             <name>Template App Nginx</name>
-            <description>Nginx Template - http://www.netkiller.cn）</description>
+            <description>Nginx Template - http://www.netkiller.cn</description>
             <groups>
                 <group>
                     <name>Netkiller</name>
