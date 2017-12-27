@@ -15,7 +15,7 @@ function check() {
 	if [ -f /sbin/pidof ]; then
 	   /sbin/pidof nginx | wc -w
 	else
-	   ps ax | grep "nginx:" | grep -v grep | wc -l
+	   ps ax | grep -v "grep" | grep -c "nginx:"
 	fi
 }
 
