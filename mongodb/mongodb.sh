@@ -47,8 +47,9 @@ output=$(
 	  s/ISODate(\(.*\))/\1/
 	  s/ObjectId(\(.*\))/\1/
 	  s/Timestamp(.*)/"&"/
-	  s/"\([0-9]*\)"/\1/' \
-	  -e "s/BinData(.*)/'&'/"
+	  s/\(BinData(.*\)"\(.*\)")/"\1\2)"/
+	  s/"\([0-9]*\)"/\1/' 
+	 
 )
 
 mongo_status=${PIPESTATUS[0]}
