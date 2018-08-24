@@ -2,7 +2,7 @@
 ##################################################
 # AUTHOR: Neo <netkiller@msn.com>
 # WEBSITE: http://www.netkiller.cn
-# Description：zabbix 通过 status 模块监控 nginx
+# Description：zabbix 通过 status 模块监控 elasticsearch
 # Note：Zabbix 3.2
 # DateTime: 2016-11-22
 ##################################################
