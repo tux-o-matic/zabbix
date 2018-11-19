@@ -7,9 +7,9 @@
 # DateTime: 2016-11-22
 ##################################################
 
-HOST="localhost"
+HOST=$2
 PORT="80"
-stub_status=stub_status
+stub_status=server-status
 
 function check() {
 	if [ -f /sbin/pidof ]; then
@@ -20,25 +20,25 @@ function check() {
 }
 
 function active() {
-	/usr/bin/curl -s "http://$HOST:$PORT/${stub_status}/" 2>/dev/null| grep 'Active' | awk '{print $NF}'
+	/usr/bin/curl -s "http://$HOST:$PORT/${stub_status}" 2>/dev/null| grep 'Active' | awk '{print $NF}'
 }
 function accepts() { 
-	/usr/bin/curl -s "http://$HOST:$PORT/${stub_status}/" 2>/dev/null| awk NR==3 | awk '{print $1}'
+	/usr/bin/curl -s "http://$HOST:$PORT/${stub_status}" 2>/dev/null| awk NR==3 | awk '{print $1}'
 }
 function handled() { 
-	/usr/bin/curl -s "http://$HOST:$PORT/${stub_status}/" 2>/dev/null| awk NR==3 | awk '{print $2}'
+	/usr/bin/curl -s "http://$HOST:$PORT/${stub_status}" 2>/dev/null| awk NR==3 | awk '{print $2}'
 }
 function requests() {
-	/usr/bin/curl -s "http://$HOST:$PORT/${stub_status}/" 2>/dev/null| awk NR==3 | awk '{print $3}'
+	/usr/bin/curl -s "http://$HOST:$PORT/${stub_status}" 2>/dev/null| awk NR==3 | awk '{print $3}'
 }
 function reading() { 
-	/usr/bin/curl -s "http://$HOST:$PORT/${stub_status}/" 2>/dev/null| grep 'Reading' | awk '{print $2}'
+	/usr/bin/curl -s "http://$HOST:$PORT/${stub_status}" 2>/dev/null| grep 'Reading' | awk '{print $2}'
 }
 function writing() { 
-	/usr/bin/curl -s "http://$HOST:$PORT/${stub_status}/" 2>/dev/null| grep 'Writing' | awk '{print $4}'
+	/usr/bin/curl -s "http://$HOST:$PORT/${stub_status}" 2>/dev/null| grep 'Writing' | awk '{print $4}'
 }
 function waiting() { 
-	/usr/bin/curl -s "http://$HOST:$PORT/${stub_status}/" 2>/dev/null| grep 'Waiting' | awk '{print $6}'
+	/usr/bin/curl -s "http://$HOST:$PORT/${stub_status}" 2>/dev/null| grep 'Waiting' | awk '{print $6}'
 }
 
 case "$1" in
